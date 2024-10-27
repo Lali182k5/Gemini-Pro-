@@ -1,0 +1,15 @@
+streamlit
+google-generativeai
+python-dotenv
+pdf2image
+docx2txt
+PyPDF2
+streamlit-lottie
+streamlit_extras
+google-cloud-aiplatform
+PyPDF2
+docx2txt
+nltk
+scikit-learn
+Pillow
+streamlit-lottie
