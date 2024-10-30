@@ -102,7 +102,7 @@ with col2:
 
 with col1:
     imgl = Image.open("robo.png")
-    st.image(imgl, width=500)
+    st.image(imgl, width=300)
 avs.add_vertical_space(10)
 col1, col2 = st.columns([3,2])
 with col1:
