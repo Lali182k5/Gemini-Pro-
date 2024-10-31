@@ -10,6 +10,12 @@ import pytesseract
 import base64
 from sklearn.feature_extraction.text import TfidfVectorizer
 
+
+headers={
+    "authorization":st.secrets["auth_token"],
+    "content-type" : "application/json"
+}
+
 # Load the environment variables
 load_dotenv()
 genai.configure(api_key=os.getenv("GOOGLE_API_KEY"))
