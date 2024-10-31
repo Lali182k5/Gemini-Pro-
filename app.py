@@ -9,7 +9,7 @@ from PIL import Image
 import pytesseract
 import base64
 from sklearn.feature_extraction.text import TfidfVectorizer
-
+from google.api_core.exceptions import InvalidArgument
 
 # Load the environment variables
 load_dotenv()
@@ -75,7 +75,7 @@ html_code = """
  # color: #007bff; /* Blue color */  
     }
 </style>
-<div class="centered-title"><h1> 🔥GEMINI PRO RESUME TRACKER🔥 </h1></div>
+<div class="centered-title"><h1> 🔥GEMINI PRO ATS RESUME TRACKER🔥 </h1></div>
 """
 # Display the HTML code in Streamlit
 st.markdown(html_code, unsafe_allow_html=True)
@@ -109,8 +109,6 @@ col1, col2 = st.columns([3,2])
 with col1:
     st.markdown("<h1 style='text-align: left; '>Embark on Your Career Adventure</h1>", unsafe_allow_html=True)
 jd = st.text_area("Paste the Job Description")
-uploaded_file = st.file_uploader("Upload Your Resume", type=["pdf", "docx", "png", "jpeg"], help="Please upload the PDF, DOCX, or image file")
-submit = st.button("Submit")
 
 def extract_text_from_pdf(file):
     reader = PdfReader(file)
