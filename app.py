@@ -11,11 +11,6 @@ import base64
 from sklearn.feature_extraction.text import TfidfVectorizer
 
 
-headers={
-    "authorization":st.secrets["auth_token"],
-    "content-type" : "application/json"
-}
-
 # Load the environment variables
 load_dotenv()
 genai.configure(api_key=os.getenv("GOOGLE_API_KEY"))
@@ -114,7 +109,7 @@ col1, col2 = st.columns([3,2])
 with col1:
     st.markdown("<h1 style='text-align: left; '>Embark on Your Career Adventure</h1>", unsafe_allow_html=True)
 jd = st.text_area("Paste the Job Description")
-uploaded_file = st.file_uploader("Upload Your Resume", type=["pdf", "docx", "png", "jpg"], help="Please upload the PDF, DOCX, or image file")
+uploaded_file = st.file_uploader("Upload Your Resume", type=["pdf", "docx", "png", "jpeg"], help="Please upload the PDF, DOCX, or image file")
 submit = st.button("Submit")
 
 def extract_text_from_pdf(file):
@@ -149,32 +144,45 @@ def find_missing_keywords(jd, resume):
     resume_keywords = set(resume.split())
     missing_keywords = jd_keywords - resume_keywords
     return missing_keywords
-
-if submit:
-    if uploaded_file is not None:
-        file_type = uploaded_file.type
-        if file_type == "application/pdf":
-            extracted_text = extract_text_from_pdf(uploaded_file)
-        elif file_type == "application/vnd.openxmlformats-officedocument.wordprocessingml.document":
-            extracted_text = extract_text_from_docx(uploaded_file)
-        elif file_type in ["image/png", "image/jpeg"]:
-            extracted_text = extract_text_from_image(uploaded_file)
-        else:
-            st.error("Unsupported file type")
-
-        tfidf_values, feature_names = calculate_tfidf(jd, extracted_text)
-        missing_keywords = find_missing_keywords(jd, extracted_text)
-
-        response = model.generate_content(input_prompt.format(extracted_text=extracted_text, jd=jd))
-        st.write(response.text)
-        st.write("Missing Keywords:", missing_keywords)
-    else:
-        st.error("Please upload a file")
-    if uploaded_file is not None:
-        st.markdown('<h8 style="color: lightgreen;text-align: center;">File uploaded successfully!</h8>', unsafe_allow_html=True)
-    else:
-        st.markdown('<h8 style="color: red;text-align: center;">Please upload your Resume!</h8>', unsafe_allow_html=True)
     
+# Assuming 'model', 'extract_text_from_pdf', 'extract_text_from_docx', 'extract_text_from_image',
+# 'calculate_tfidf', and 'find_missing_keywords' are already defined
+def main():
+    uploaded_file = st.file_uploader("Upload your Resume", type=["pdf", "docx", "png", "jpeg"])
+    submit = st.button("Submit", key="submit_button")
+
+    if submit:
+        if uploaded_file is not None:
+            file_type = uploaded_file.type
+            if file_type == "application/pdf":
+                extracted_text = extract_text_from_pdf(uploaded_file)
+            elif file_type == "application/vnd.openxmlformats-officedocument.wordprocessingml.document":
+                extracted_text = extract_text_from_docx(uploaded_file)
+            elif file_type in ["image/png", "image/jpeg"]:
+                extracted_text = extract_text_from_image(uploaded_file)
+            else:
+                st.error("Unsupported file type")
+                return
+
+            tfidf_values, feature_names = calculate_tfidf(jd, extracted_text)
+            missing_keywords = find_missing_keywords(jd, extracted_text)
+
+            try:
+                response = model.generate_content(input_prompt.format(extracted_text=extracted_text, jd=jd))
+                st.write(response.text)
+                st.write("Missing Keywords:", missing_keywords)
+            except InvalidArgument as e:
+                st.error(f"InvalidArgument error: {e}")
+                # Log more details if needed
+                print(f"Error details: {e}")
+
+            st.markdown('<h8 style="color: lightgreen;text-align: center;">File uploaded successfully!</h8>', unsafe_allow_html=True)
+        else:
+            st.error("Please upload a file")
+            st.markdown('<h8 style="color: red;text-align: center;">Please upload your Resume!</h8>', unsafe_allow_html=True)
+
+if __name__ == "__main__":
+    main()
 
 avs.add_vertical_space(15)
 col1, col2 = st.columns([2, 3])
